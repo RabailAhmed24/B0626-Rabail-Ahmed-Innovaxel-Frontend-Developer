@@ -1,20 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { X } from "lucide-react";
 
-/**
- * ExpenseForm component renders a unified interface for creation and modification of expense objects.
- * Handles structural field validation dynamically.
- */
-export default function ExpenseForm({ onAddExpense, onUpdateExpense, editingExpense, setEditingExpense }) {
-  // Local structural state mapping all specific required and optional form inputs
-  const [formData, setFormData] = useState({
-    title: "",
-    amount: "",
-    category: "Food", // System default category fallback
+export default function ExpenseForm({ onAddExpense, onUpdateExpense, editingExpense, onClose }) {
+  const [formData, setFormData] = useState({ 
+    title: "", 
+    amount: "", 
+    category: "Food", 
     date: "",
-    notes: ""
+    notes: "" 
   });
 
-  // Effect hooks monitoring external edit context shifts to populate fields instantly
   useEffect(() => {
     if (editingExpense) {
       setFormData({
@@ -24,43 +19,12 @@ export default function ExpenseForm({ onAddExpense, onUpdateExpense, editingExpe
         date: editingExpense.date,
         notes: editingExpense.notes || ""
       });
-    } else {
-      resetFormState();
     }
   }, [editingExpense]);
 
-  /**
-   * Resets local component form fields back to sterile default baselines.
-   */
-  const resetFormState = () => {
-    setFormData({
-      title: "",
-      amount: "",
-      category: "Food",
-      date: "",
-      notes: ""
-    });
-  };
-
-  /**
-   * Universal change handler adjusting individual nested properties by DOM name assignments.
-   */
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  /**
-   * Intercepts standard form submission for explicit data schema validation processing.
-   */
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Secondary validation block matching numerical boundaries and empty text spaces
-    if (!formData.title.trim() || !formData.date || parseFloat(formData.amount) <= 0) {
-      alert("Please provide valid inputs. Amount must be greater than zero.");
-      return;
-    }
+    if (!formData.title.trim() || !formData.date || parseFloat(formData.amount) <= 0) return;
 
     const payload = {
       id: editingExpense ? editingExpense.id : crypto.randomUUID(),
@@ -71,125 +35,93 @@ export default function ExpenseForm({ onAddExpense, onUpdateExpense, editingExpe
       notes: formData.notes.trim()
     };
 
-    if (editingExpense) {
-      onUpdateExpense(payload);
-    } else {
-      onAddExpense(payload);
-    }
-
-    resetFormState();
+    if (editingExpense) onUpdateExpense(payload);
+    else onAddExpense(payload);
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm transition-all duration-300">
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="text-lg font-bold text-gray-900">
-          {editingExpense ? "Modify Expense Entry" : "Track New Expense"}
-        </h2>
-        {editingExpense && (
-          <button
-            type="button"
-            onClick={() => setEditingExpense(null)}
-            className="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
-          >
-            Cancel Edit
-          </button>
-        )}
+    <div className="bg-white border border-zinc-200 rounded-[28px] p-6 shadow-2xl relative">
+      <button onClick={onClose} className="absolute right-4 top-4 p-1 rounded-lg text-zinc-400 hover:text-black hover:bg-zinc-100 transition cursor-pointer">
+        <X className="w-4 h-4" />
+      </button>
+
+      <div className="mb-5">
+        <h3 className="text-sm font-black uppercase tracking-wider text-black">
+          {editingExpense ? "Modify Asset Record" : "Add Expense"}
+        </h3>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Title Input Field */}
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
-            Expense Title *
-          </label>
+          <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1 font-mono">Title</label>
           <input
             type="text"
-            name="title"
+            placeholder="e.g., Dinner with friends"
             required
-            placeholder="e.g., Office Supplies"
             value={formData.title}
-            onChange={handleInputChange}
-            className="w-full text-sm px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            className="w-full bg-zinc-50 text-xs font-semibold px-4 py-3 border border-zinc-200 rounded-xl focus:outline-none focus:border-black focus:bg-white transition"
           />
         </div>
 
-        {/* Amount & Category Input Grid */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
-              Amount (PKR) *
-            </label>
-            <input
-              type="number"
-              name="amount"
-              required
-              min="0.01"
-              step="any"
-              placeholder="0.00"
-              value={formData.amount}
-              onChange={handleInputChange}
-              className="w-full text-sm px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
-            />
+            <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1 font-mono">Amount</label>
+            {/* Polish item #8: Embedded PKR token tag indicator inside amount container frame */}
+            <div className="relative flex items-center">
+              <span className="absolute left-4 text-xs font-bold text-zinc-400 font-mono select-none">PKR</span>
+              <input
+                type="number"
+                placeholder="2200"
+                required
+                min="1"
+                value={formData.amount}
+                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                className="w-full bg-zinc-50 text-xs font-black pl-12 pr-4 py-3 border border-zinc-200 rounded-xl focus:outline-none focus:border-black focus:bg-white transition"
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
-              Category *
-            </label>
+            <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1 font-mono">Category</label>
             <select
-              name="category"
               value={formData.category}
-              onChange={handleInputChange}
-              className="w-full text-sm px-3 py-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              className="w-full bg-zinc-50 text-xs font-bold px-3 py-3 border border-zinc-200 rounded-xl focus:outline-none focus:border-black focus:bg-white transition cursor-pointer"
             >
               <option value="Food">Food</option>
               <option value="Utilities">Utilities</option>
               <option value="Entertainment">Entertainment</option>
               <option value="Transport">Transport</option>
-              <option value="Medical">Medical</option>
-              <option value="Housing">Housing</option>
-              <option value="Miscellaneous">Miscellaneous</option>
             </select>
           </div>
         </div>
 
-        {/* Date Picker Input */}
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
-            Transaction Date *
-          </label>
+          <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1 font-mono">Date</label>
           <input
             type="date"
-            name="date"
             required
             value={formData.date}
-            onChange={handleInputChange}
-            className="w-full text-sm px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
+            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+            className="w-full bg-zinc-50 text-xs font-semibold px-4 py-3 border border-zinc-200 rounded-xl focus:outline-none focus:border-black focus:bg-white transition"
           />
         </div>
 
-        {/* Optional Notes Block */}
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
-            Memo Notes (Optional)
-          </label>
+          <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1 font-mono">Notes (Optional)</label>
           <textarea
-            name="notes"
-            rows="3"
-            placeholder="Add specific contextual details here..."
+            placeholder="Provide context or details..."
+            rows={2}
             value={formData.notes}
-            onChange={handleInputChange}
-            className="w-full text-sm px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition resize-none"
+            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+            className="w-full bg-zinc-50 text-xs font-semibold px-4 py-3 border border-zinc-200 rounded-xl focus:outline-none focus:border-black focus:bg-white resize-none transition"
           />
         </div>
 
-        {/* Master Action Trigger Button */}
-        <button
-          type="submit"
-          className="w-full mt-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition duration-150"
-        >
-          {editingExpense ? "Save Structural Changes" : "Commit Expense Entry"}
+        {/* Quick Win item #4: Form control button string adjustments */}
+        <button type="submit" className="w-full bg-[#ef4444] hover:bg-red-600 text-white text-xs font-bold uppercase tracking-wider py-3 rounded-xl transition shadow-md shadow-red-500/10 cursor-pointer">
+          Save Expense
         </button>
       </form>
     </div>
