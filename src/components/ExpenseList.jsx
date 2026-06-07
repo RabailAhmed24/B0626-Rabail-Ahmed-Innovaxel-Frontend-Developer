@@ -1,10 +1,21 @@
 import React, { useState, useMemo } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Edit2, Trash2, Calendar, FileText, ArrowUpDown } from "lucide-react";
+import { Edit2, Trash2, ArrowUpDown } from "lucide-react";
 
 export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, onTriggerOpenForm }) {
   const [activeCategory, setActiveCategory] = useState("All");
   const [sortDirection, setSortDirection] = useState("desc");
+
+  // Dynamic Categories Array mapping tabs cleanly
+  const categories = ["All", "Food", "Utilities", "Entertainment", "Transport"];
+
+  // Exact color values mapped to sync legends and row markers perfectly
+  const categoryColors = {
+    Food: "#ef4444",          // Crimson
+    Utilities: "#09090b",     // Dark Zinc
+    Entertainment: "#71717a", // Muted Gray
+    Transport: "#d4d4d8"      // Light Zinc Border Accent
+  };
 
   const processedExpenses = useMemo(() => {
     let dataset = [...expenses];
@@ -26,6 +37,11 @@ export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, o
     return Object.keys(counts).map((name) => ({ name, value: counts[name] }));
   }, [expenses]);
 
+  // Dynamically calculating center sum for donut chart overlay matrix
+  const totalDonutVolume = useMemo(() => {
+    return categoryChartData.reduce((sum, item) => sum + item.value, 0);
+  }, [categoryChartData]);
+
   const graphTimelineData = useMemo(() => {
     const dailyMap = {};
     expenses.slice(0, 15).forEach((item) => {
@@ -39,29 +55,25 @@ export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, o
       }));
   }, [expenses]);
 
-  const PIE_COLORS = ["#09090b", "#ef4444", "#71717a", "#d4d4d8"];
-
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Spending Flow Matrix */}
+        
+        {/* Spending Flow Matrix — Cleaned & Upgraded */}
         <div className="bg-white border border-zinc-200 rounded-[24px] p-6 shadow-xs">
-          <div className="mb-4 flex justify-between items-center">
-            <div>
-              <h3 className="text-xs font-black uppercase tracking-wider text-black">Spending Flow Matrix</h3>
-              <p className="text-[9px] font-bold text-zinc-400 font-mono">Timeline Vector Analysis</p>
-            </div>
-            <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 bg-zinc-100 text-zinc-500 rounded font-mono">Live Area Graph</span>
+          <div className="mb-4">
+            <h3 className="text-xs font-black uppercase tracking-wider text-black">Spending Flow Matrix</h3>
+            <p className="text-[9px] font-bold text-zinc-400 font-mono">Timeline Vector Analysis</p>
           </div>
 
           {graphTimelineData.length === 0 ? (
-            <div className="h-40 flex flex-col items-center justify-center border border-dashed border-zinc-200 bg-zinc-50/40 rounded-2xl p-4 text-center">
-              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest font-mono">Insufficient transactional data for projection mapping</p>
+            <div className="h-44 flex flex-col items-center justify-center border border-dashed border-zinc-200 bg-zinc-50/40 rounded-2xl p-4 text-center">
+              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest font-mono">Insufficient data mapped</p>
             </div>
           ) : (
-            <div className="w-full h-40">
+            <div className="w-full h-44">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={graphTimelineData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+                <AreaChart data={graphTimelineData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
                   <defs>
                     <linearGradient id="crimsonGlow" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#ef4444" stopOpacity={0.1}/>
@@ -69,7 +81,8 @@ export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, o
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="formattedDate" tick={{ fill: "#a1a1aa", fontSize: 9, fontWeight: 600 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: "#a1a1aa", fontSize: 9 }} axisLine={false} tickLine={false} />
+                  {/* Y-Axis Refinement: Added static PKR token formatting tag directly onto labels */}
+                  <YAxis tickFormatter={(val) => `PKR ${val}`} tick={{ fill: "#a1a1aa", fontSize: 8, fontWeight: 600 }} axisLine={false} tickLine={false} />
                   <Tooltip contentStyle={{ backgroundColor: "#09090b", borderRadius: "12px", border: "none", color: "#fff", fontSize: "11px" }} />
                   <Area type="monotone" dataKey="amount" stroke="#ef4444" strokeWidth={2} fillOpacity={1} fill="url(#crimsonGlow)" />
                 </AreaChart>
@@ -78,39 +91,60 @@ export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, o
           )}
         </div>
 
-        {/* Category Breakdown */}
+        {/* Category Breakdown Donut Chart — Fully Upgraded */}
         <div className="bg-white border border-zinc-200 rounded-[24px] p-6 shadow-xs">
           <div className="mb-4">
             <h3 className="text-xs font-black uppercase tracking-wider text-black">Spending By Category</h3>
+            <p className="text-[9px] font-bold text-zinc-400 font-mono">Asset Vector Distribution</p>
           </div>
 
           {categoryChartData.length === 0 ? (
-            <div className="h-40 flex flex-col items-center justify-center border border-dashed border-zinc-200 bg-zinc-50/40 rounded-2xl p-4 text-center">
+            <div className="h-44 flex flex-col items-center justify-center border border-dashed border-zinc-200 bg-zinc-50/40 rounded-2xl p-4 text-center">
               <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest font-mono">No data yet</p>
             </div>
           ) : (
-            <div className="w-full h-40 flex items-center justify-between">
-              <div className="w-1/2 h-full">
+            <div className="w-full h-44 flex items-center justify-between relative">
+              
+              {/* Thicker Ring Geometric Configuration with Absolute Center Metadata Label overlay */}
+              <div className="w-1/2 h-full relative flex items-center justify-center">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={categoryChartData} cx="50%" cy="50%" innerRadius={30} outerRadius={45} paddingAngle={4} dataKey="value">
+                    <Pie 
+                      data={categoryChartData} 
+                      cx="50%" 
+                      cy="50%" 
+                      innerRadius={36} 
+                      outerRadius={48} 
+                      paddingAngle={3} 
+                      dataKey="value"
+                    >
                       {categoryChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                        <Cell key={`cell-${index}`} fill={categoryColors[entry.name] || "#71717a"} />
                       ))}
                     </Pie>
                     <Tooltip contentStyle={{ backgroundColor: "#09090b", borderRadius: "12px", border: "none", color: "#fff", fontSize: "10px" }} />
                   </PieChart>
                 </ResponsiveContainer>
+                
+                {/* Center text matrix */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-1">
+                  <span className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-tight">Total</span>
+                  <span className="text-xs font-black text-black leading-none">PKR {totalDonutVolume.toLocaleString()}</span>
+                </div>
               </div>
               
-              <div className="w-1/2 space-y-1.5 max-h-full overflow-y-auto ledger-scroll-zone">
+              {/* Refinement: Legend colors configured to match slices exactly */}
+              <div className="w-1/2 space-y-2 max-h-full overflow-y-auto ledger-scroll-zone pl-2">
                 {categoryChartData.map((item, idx) => (
                   <div key={idx} className="flex items-center justify-between text-[10px] font-bold">
-                    <div className="flex items-center space-x-1.5 min-w-0">
-                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: PIE_COLORS[idx % PIE_COLORS.length] }} />
+                    <div className="flex items-center space-x-2 min-w-0">
+                      <div 
+                        className="w-2.5 h-2.5 rounded-full flex-shrink-0" 
+                        style={{ backgroundColor: categoryColors[item.name] || "#71717a" }} 
+                      />
                       <span className="text-zinc-500 truncate">{item.name}</span>
                     </div>
-                    <span className="text-black font-mono pl-1">PKR {item.value}</span>
+                    <span className="text-black font-mono pl-1">PKR {item.value.toLocaleString()}</span>
                   </div>
                 ))}
               </div>
@@ -119,7 +153,7 @@ export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, o
         </div>
       </div>
 
-      {/* Account Ledger Table */}
+      {/* Account Ledger Table Component Frame */}
       <div className="bg-white border border-zinc-200 rounded-[24px] overflow-hidden shadow-xs">
         <div className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -132,12 +166,12 @@ export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, o
             <p className="text-[9px] font-bold text-zinc-400 font-mono">Realtime account output</p>
           </div>
           
-          <div className="flex items-center space-x-1 bg-zinc-100 p-1 rounded-xl">
-            {["All", "Food", "Utilities", "Entertainment"].map((cat) => (
+          <div className="flex items-center space-x-1 bg-zinc-100 p-1 rounded-xl overflow-x-auto max-w-full">
+            {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`text-[10px] font-bold px-3 py-1.5 rounded-lg transition ${activeCategory === cat ? "bg-black text-white shadow-xs" : "text-zinc-600 hover:text-black"}`}
+                className={`text-[10px] font-black px-3 py-1.5 rounded-lg transition-all flex-shrink-0 ${activeCategory === cat ? "bg-black text-white shadow-xs" : "text-zinc-500 hover:text-black"}`}
               >
                 {cat.toUpperCase()}
               </button>
@@ -156,10 +190,20 @@ export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, o
           ) : (
             processedExpenses.map((item) => (
               <div key={item.id} className="py-3.5 flex items-center justify-between gap-4 group">
-                <div className="flex items-center space-x-3 min-w-0">
-                  <div className="w-8 h-8 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-900 font-bold text-xs flex-shrink-0">
-                    {item.title.substring(0,2).toUpperCase()}
+                <div className="flex items-center space-x-3.5 min-w-0">
+                  
+                  {/* Refinement: Replaced confusion-causing letter initials with structural colored category dot beacons */}
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 relative">
+                    <div 
+                      className="w-2.5 h-2.5 rounded-full transition-transform group-hover:scale-125" 
+                      style={{ backgroundColor: categoryColors[item.category] || "#71717a" }}
+                    />
+                    <div 
+                      className="absolute inset-0 rounded-full opacity-10" 
+                      style={{ backgroundColor: categoryColors[item.category] || "#71717a" }}
+                    />
                   </div>
+
                   <div className="min-w-0">
                     <h4 className="font-bold text-xs text-black tracking-tight truncate">{item.title}</h4>
                     <p className="text-[10px] text-zinc-400 font-mono mt-0.5">{item.date}</p>
@@ -168,8 +212,8 @@ export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, o
 
                 <div className="flex items-center space-x-3">
                   <div className="text-right">
-                    <span className="text-xs font-black text-black block">PKR {item.amount}</span>
-                    <span className="text-[9px] font-bold text-zinc-400 block font-mono">{item.category}</span>
+                    <span className="text-xs font-black text-black block">PKR {item.amount.toLocaleString()}</span>
+                    <span className="text-[9px] font-bold text-zinc-400 block font-mono uppercase tracking-wide">{item.category}</span>
                   </div>
                   <div className="flex items-center space-x-1 pl-2 border-l border-zinc-100">
                     <button onClick={() => onEditSelect(item)} className="p-1 text-zinc-400 hover:text-black transition cursor-pointer">

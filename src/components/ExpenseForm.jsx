@@ -10,6 +10,7 @@ export default function ExpenseForm({ onAddExpense, onUpdateExpense, editingExpe
     notes: "" 
   });
 
+  // Confirmed: This hook pre-fills existing data instantly when editingExpense changes
   useEffect(() => {
     if (editingExpense) {
       setFormData({
@@ -19,6 +20,8 @@ export default function ExpenseForm({ onAddExpense, onUpdateExpense, editingExpe
         date: editingExpense.date,
         notes: editingExpense.notes || ""
       });
+    } else {
+      setFormData({ title: "", amount: "", category: "Food", date: "", notes: "" });
     }
   }, [editingExpense]);
 
@@ -40,13 +43,13 @@ export default function ExpenseForm({ onAddExpense, onUpdateExpense, editingExpe
   };
 
   return (
-    <div className="bg-white border border-zinc-200 rounded-[28px] p-6 shadow-2xl relative">
+    <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-2xl relative">
       <button onClick={onClose} className="absolute right-4 top-4 p-1 rounded-lg text-zinc-400 hover:text-black hover:bg-zinc-100 transition cursor-pointer">
         <X className="w-4 h-4" />
       </button>
 
       <div className="mb-5">
-        <h3 className="text-sm font-black uppercase tracking-wider text-black">
+        <h3 className="text-xs font-black uppercase tracking-wider text-black">
           {editingExpense ? "Modify Asset Record" : "Add Expense"}
         </h3>
       </div>
@@ -56,7 +59,7 @@ export default function ExpenseForm({ onAddExpense, onUpdateExpense, editingExpe
           <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1 font-mono">Title</label>
           <input
             type="text"
-            placeholder="e.g., Dinner with friends"
+            placeholder="e.g., Grocery run"
             required
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -67,7 +70,6 @@ export default function ExpenseForm({ onAddExpense, onUpdateExpense, editingExpe
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1 font-mono">Amount</label>
-            {/* Polish item #8: Embedded PKR token tag indicator inside amount container frame */}
             <div className="relative flex items-center">
               <span className="absolute left-4 text-xs font-bold text-zinc-400 font-mono select-none">PKR</span>
               <input
@@ -111,7 +113,7 @@ export default function ExpenseForm({ onAddExpense, onUpdateExpense, editingExpe
         <div>
           <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1 font-mono">Notes (Optional)</label>
           <textarea
-            placeholder="Provide context or details..."
+            placeholder="Any extra details..."
             rows={2}
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -119,8 +121,7 @@ export default function ExpenseForm({ onAddExpense, onUpdateExpense, editingExpe
           />
         </div>
 
-        {/* Quick Win item #4: Form control button string adjustments */}
-        <button type="submit" className="w-full bg-[#ef4444] hover:bg-red-600 text-white text-xs font-bold uppercase tracking-wider py-3 rounded-xl transition shadow-md shadow-red-500/10 cursor-pointer">
+        <button type="submit" className="w-full bg-red-500 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-wider py-3 rounded-xl transition shadow-xs cursor-pointer">
           Save Expense
         </button>
       </form>
