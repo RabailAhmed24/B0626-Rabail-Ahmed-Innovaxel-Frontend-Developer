@@ -1,6 +1,11 @@
 import React, { useMemo } from "react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
+/**
+ * AnalyticsView Component
+ * Renders statistical tracking graphs mapping macro-level expenditure over time 
+ * alongside itemized categorization breakdowns.
+ */
 export default function AnalyticsView({ expenses }) {
   const aggregateMetrics = useMemo(() => {
     const daily = {};
@@ -27,11 +32,11 @@ export default function AnalyticsView({ expenses }) {
   return (
     <div className="space-y-6 w-full">
       
-      {/* Full timeline container */}
+      {/* Structural Timeline Visualization Mapping Area */}
       <div className="bg-white border border-zinc-200 rounded-[24px] p-6 shadow-xs w-full">
         <div className="mb-4">
-          <h3 className="text-xs font-black uppercase tracking-wider text-black">Macro Flow Timeline Analysis</h3>
-          <p className="text-[9px] font-bold text-zinc-400 font-mono">Expanded historical volume visualization matrix</p>
+          <h3 className="text-xs font-black uppercase tracking-wider text-black">Spending Trend</h3>
+          <p className="text-[9px] font-bold text-zinc-400 font-mono">Historical volume analysis of outward expenditure</p>
         </div>
         <div className="w-full h-64">
           {aggregateMetrics.graphTimeline.length === 0 ? (
@@ -57,11 +62,11 @@ export default function AnalyticsView({ expenses }) {
         </div>
       </div>
 
-      {/* Two column grid for categories splitting */}
+      {/* Analytical categorization metrics distribution grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
         <div className="bg-white border border-zinc-200 rounded-[24px] p-6 shadow-xs w-full">
           <div className="mb-4">
-            <h3 className="text-xs font-black uppercase tracking-wider text-black">Volumetric Category Weights</h3>
+            <h3 className="text-xs font-black uppercase tracking-wider text-black">Category Breakdown</h3>
             <p className="text-[9px] font-bold text-zinc-400 font-mono">Structural bar distribution parameters</p>
           </div>
           <div className="w-full h-48">
@@ -75,7 +80,8 @@ export default function AnalyticsView({ expenses }) {
                   <XAxis dataKey="Category" tick={{ fill: "#71717a", fontSize: 10, fontWeight: 600 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: "#71717a", fontSize: 9 }} axisLine={false} tickLine={false} />
                   <Tooltip contentStyle={{ backgroundColor: "#09090b", color: "#fff", border: "none", borderRadius: "12px", fontSize: "11px" }} />
-                  <Bar dataKey="Total" fill="#09090b" radius={[6, 6, 0, 0]} />
+                  {/* Changed fill color from #09090b to the #ef4444 red accent color */}
+                  <Bar dataKey="Total" fill="#ef4444" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -84,8 +90,8 @@ export default function AnalyticsView({ expenses }) {
 
         <div className="bg-white border border-zinc-200 rounded-[24px] p-6 shadow-xs space-y-4 w-full">
           <div>
-            <h3 className="text-xs font-black uppercase tracking-wider text-black">Top Expense Classifications</h3>
-            <p className="text-[9px] font-bold text-zinc-400 font-mono">Dominant account allocation vectors</p>
+            <h3 className="text-xs font-black uppercase tracking-wider text-black">Top Categories</h3>
+            <p className="text-[9px] font-bold text-zinc-400 font-mono">Primary account distribution vectors</p>
           </div>
           <div className="space-y-3 pt-1 w-full">
             {aggregateMetrics.categoryBreakdown.slice(0, 3).map((item, idx) => (

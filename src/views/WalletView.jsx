@@ -1,6 +1,11 @@
 import React, { useMemo } from "react";
 import { CreditCard, ArrowDownRight, Calendar } from "lucide-react";
 
+/**
+ * WalletView Component
+ * Renders user account balances using a premium credit card UI view layer,
+ * maps cumulative outflows, and aggregates a clean history statement grid.
+ */
 export default function WalletView({ expenses }) {
   const totalSpent = useMemo(() => expenses.reduce((sum, item) => sum + item.amount, 0), [expenses]);
   
@@ -16,17 +21,18 @@ export default function WalletView({ expenses }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
       
-      {/* Premium Horizontal Visa Component Container */}
+      {/* Premium Horizontal Card Container Workspace */}
       <div className="lg:col-span-5 space-y-4 w-full">
-        <div className="bg-gradient-to-br from-zinc-900 via-neutral-900 to-zinc-950 border border-zinc-800 text-white p-6 rounded-[24px] shadow-xl relative w-full aspect-[1.586/1] flex flex-col justify-between overflow-hidden group">
+        {/* Redesigned card: Flat layout replaced with dark-to-red metallic gradient matrix overlay */}
+        <div className="bg-gradient-to-br from-zinc-950 via-neutral-900 to-red-950/40 border border-zinc-850 text-white p-6 rounded-[24px] shadow-xl relative w-full aspect-[1.586/1] flex flex-col justify-between overflow-hidden group">
           <div className="absolute right-[-20px] top-[-20px] w-40 h-40 bg-red-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-red-500/20 transition-all duration-500" />
           
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500 font-mono">Vault Node Account</p>
+              <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400 font-mono">Available Balance</p>
               <h4 className="text-xl font-black mt-1 tracking-tight text-white">PKR {dynamicBalance.toLocaleString()}</h4>
             </div>
-            <CreditCard className="w-5 h-5 text-red-500" />
+            <CreditCard className="w-5 h-5 text-red-500 animate-pulse" />
           </div>
 
           <div className="space-y-4">
@@ -47,6 +53,7 @@ export default function WalletView({ expenses }) {
           </div>
         </div>
 
+        {/* Total Outflows Metric Tracker Card */}
         <div className="bg-white border border-zinc-200 rounded-[24px] p-5 shadow-xs flex justify-between items-center w-full">
           <div>
             <span className="text-[9px] font-black uppercase tracking-wider text-zinc-400 block font-mono">Total Capital Outflows</span>
@@ -58,14 +65,14 @@ export default function WalletView({ expenses }) {
         </div>
       </div>
 
-      {/* Transaction History Workspace Container */}
+      {/* Transaction History Workspace Card */}
       <div className="lg:col-span-7 bg-white border border-zinc-200 rounded-[24px] p-6 shadow-xs space-y-4 w-full">
         <div>
-          <h3 className="text-xs font-black uppercase tracking-wider text-black">Wallet Audit Matrix</h3>
-          <p className="text-[9px] font-bold text-zinc-400 font-mono">History allocation sequence (Limit 10)</p>
+          <h3 className="text-xs font-black uppercase tracking-wider text-black">Wallet Statement</h3>
+          <p className="text-[9px] font-bold text-zinc-400 font-mono">Recent historical transaction timeline (Limit 10)</p>
         </div>
 
-        <div className="divide-y divide-zinc-100 max-h-[340px] overflow-y-auto pr-1">
+        <div className="divide-y divide-zinc-100 max-h-[340px] overflow-y-auto pr-1 zone-scroll">
           {recentTenLogs.length === 0 ? (
             <div className="py-16 text-center text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
               No recent transactions found
@@ -74,7 +81,7 @@ export default function WalletView({ expenses }) {
             recentTenLogs.map((item) => (
               <div key={item.id} className="py-3 flex items-center justify-between gap-4 w-full">
                 <div className="flex items-center space-x-3 min-w-0">
-                  <div className="w-2 h-2 rounded-full bg-zinc-900 flex-shrink-0" />
+                  <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
                   <div className="min-w-0">
                     <h4 className="font-bold text-xs text-black truncate tracking-tight">{item.title}</h4>
                     <p className="text-[9px] text-zinc-400 font-mono mt-0.5 flex items-center gap-1">
