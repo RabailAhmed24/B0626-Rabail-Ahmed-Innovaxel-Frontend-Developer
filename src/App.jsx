@@ -15,6 +15,7 @@ import AnalyticsView from "./views/AnalyticsView";
 import SettingsView from "./views/SettingsView";
 import NotificationDropdown from "./components/NotificationDropdown";
 import NotebookPageBackground from "./components/NotebookPageBackground";
+import ExpenseFormModal from "./components/ExpenseFormModal"; // Form modal link checked
 
 function App() {
   const [activeView, setActiveView] = useState("dashboard");
@@ -23,7 +24,7 @@ function App() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [hoveredIcon, setHoveredIcon] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(""); // Dynamic Real-time Search State
+  const [searchQuery, setSearchQuery] = useState(""); // Dynamic Real-time Search State 
 
   const [budgets, setBudgets] = useLocalStorage("budget-limits", {
     Food: 15000,
@@ -32,16 +33,17 @@ function App() {
     Transport: 8000
   });
 
-  // --- UX FIX 8: Global Keyboard Shortcut Framework ---
+  // --- UX FEATURE: Keyboard Shortcut Framework --- [cite: 112, 114]
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Input processing scenarios text handling skip
       if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA") {
         return;
       }
       if (e.key.toLowerCase() === "n") {
         e.preventDefault();
         setEditingExpense(null);
-        setIsFormOpen(true);
+        setIsFormOpen(true); // Open modal form pipeline [cite: 114]
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -168,7 +170,7 @@ function App() {
               onMouseEnter={() => setHoveredIcon("Settings")}
               onMouseLeave={() => setHoveredIcon(null)}
               className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all cursor-pointer ${activeView === "settings" ? "bg-white text-black shadow-md" : "text-zinc-500 hover:text-white hover:bg-zinc-900"}`}
-                >
+            >
               <SettingsIcon className="w-5 h-5" />
             </button>
             {hoveredIcon === "Settings" && (
@@ -192,25 +194,29 @@ function App() {
               </p>
             </div>
 
-            {/* HEADER CONTROLS AREA: Search + Notification + CTA combined perfectly */}
+            {/* HEADER CONTROLS AREA: Search + Notification + CTA layout mapping */}
             <div className="flex items-center space-x-3 relative flex-1 sm:justify-end max-w-xl w-full">
               
-              {/* Active Search Component embedded in Header */}
+              {/* Active Quick Search bar embedded in Header */}
               {activeView === "dashboard" && (
                 <div className="relative flex items-center flex-1 max-w-xs transition-all duration-300">
                   <Search className="w-3.5 h-3.5 absolute left-3 text-zinc-400 pointer-events-none" />
                   <input 
                     type="text" 
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    [cite_start]onChange={(e) => setSearchQuery(e.target.value)} // Continuous Search state sync 
                     placeholder="Search transactions..."
-                    className="w-full bg-white border border-zinc-200 rounded-xl pl-9 pr-4 py-2 text-xs font-medium focus:outline-none focus:border-black shadow-xs transition"
+                    className="w-full bg-white border border-zinc-200 rounded-xl pl-9 pr-4 py-2 text-xs font-medium focus:outline-none focus:border-black shadow-sm transition"
                   />
                 </div>
               )}
 
+              {/* LOG EXPENSE CTA BUTTON FIXED */}
               <button 
-                onClick={() => { setEditingExpense(null); setIsFormOpen(true); }}
+                onClick={() => { 
+                  setEditingExpense(null); // Clear previous parameters
+                  setIsFormOpen(true);     // Trigger visibility layer to true
+                }}
                 className="bg-black hover:bg-zinc-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-sm transition cursor-pointer flex-shrink-0"
               >
                 <span>Log Expense</span>
@@ -247,7 +253,7 @@ function App() {
                 totalBalanceOut={totalBalanceOut}
                 monthlySpend={monthlySpend}
                 activeEntries={activeEntries}
-                searchQuery={searchQuery} // Passed down to trigger list filter
+                [cite_start]searchQuery={searchQuery} // Passed down to filter transactions [cite: 60]
                 onEditSelect={(expense) => {
                   setEditingExpense(expense);
                   setIsFormOpen(true);
@@ -265,6 +271,17 @@ function App() {
         </div>
 
       </div>
+
+      {/* --- FORM MODAL OVERLAY PORTAL ACTION --- */}
+      {isFormOpen && (
+        <ExpenseFormModal 
+          isOpen={isFormOpen}
+          onClose={() => setIsFormOpen(false)}
+          onSave={editingExpense ? handleUpdateExpense : handleAddExpense}
+          expenseToEdit={editingExpense}
+        />
+      )}
+
     </NotebookPageBackground>
   );
 }
