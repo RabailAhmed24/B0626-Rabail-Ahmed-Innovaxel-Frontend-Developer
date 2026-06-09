@@ -157,7 +157,10 @@ function App() {
             <DashboardView 
               expenses={expenses} 
               budgets={budgets} 
-              onEditSelect={handleUpdateExpense} 
+              onEditSelect={(expense) => {
+  setEditingExpense(expense);
+  setIsFormOpen(true);
+}} 
               onDeleteExpense={handleDeleteExpense}
               onTriggerOpenForm={() => { setEditingExpense(null); setIsFormOpen(true); }}
               onClearData={handleClearAllData}

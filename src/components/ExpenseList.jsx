@@ -22,7 +22,19 @@ export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, o
     Transport: "#38B2AC"      // Teal Accent
   };
 
-  // FIX ISSUE 2: Enforced precise lowercase structural comparison
+  // Helper function to standardize dates cleanly to "Jun 9, 2026" format
+  const formatHumanDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString; 
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    });
+  };
+
+  // Enforced precise lowercase structural comparison
   const processedExpenses = useMemo(() => {
     let dataset = [...expenses];
     if (activeCategory.toLowerCase() !== "all") {
@@ -70,7 +82,7 @@ export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, o
         <div className="bg-white border border-zinc-200 rounded-[24px] p-6 shadow-xs">
           <div className="mb-4">
             <h3 className="text-xs font-black uppercase tracking-wider text-black">Spending Over Time</h3>
-            <p className="text-[9px] font-bold text-zinc-400 font-mono">Timeline Vector Analysis</p>
+            <p className="text-[10px] font-medium text-zinc-400">Daily spending over time</p>
           </div>
 
           {graphTimelineData.length === 0 ? (
@@ -101,7 +113,7 @@ export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, o
         <div className="bg-white border border-zinc-200 rounded-[24px] p-6 shadow-xs">
           <div className="mb-4">
             <h3 className="text-xs font-black uppercase tracking-wider text-black">Category Breakdown</h3>
-            <p className="text-[9px] font-bold text-zinc-400 font-mono">Asset Vector Distribution</p>
+            <p className="text-[10px] font-medium text-zinc-400">This month's spending by category</p>
           </div>
 
           {categoryChartData.length === 0 ? (
@@ -166,7 +178,7 @@ export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, o
                 <ArrowUpDown className="w-3 h-3" />
               </button>
             </h3>
-            <p className="text-[9px] font-bold text-zinc-400 font-mono">Realtime historical output</p>
+            <p className="text-[10px] font-medium text-zinc-400">Your recent transactions</p>
           </div>
           
           <div className="flex items-center space-x-1 bg-zinc-100 p-1 rounded-xl overflow-x-auto max-w-full">
@@ -207,7 +219,8 @@ export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, o
               const displayColor = categoryColors[formattedCatName] || "#71717a";
 
               return (
-                <div key={item.id} className="py-3.5 flex items-center justify-between gap-4 group">
+                /* IMPROVED: Added "group" wrapper layout class context */
+                <div key={item.id} className="py-3.5 flex items-center justify-between gap-4 group hover:bg-zinc-50/50 px-2 rounded-xl transition-all duration-150">
                   <div className="flex items-center space-x-3.5 min-w-0">
                     
                     <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 relative">
@@ -223,7 +236,7 @@ export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, o
 
                     <div className="min-w-0">
                       <h4 className="font-bold text-xs text-black tracking-tight truncate">{item.title}</h4>
-                      <p className="text-[10px] text-zinc-400 font-mono mt-0.5">{item.date}</p>
+                      <p className="text-[10px] text-zinc-400 font-medium mt-0.5">{formatHumanDate(item.date)}</p>
                     </div>
                   </div>
 
@@ -232,11 +245,19 @@ export default function ExpenseList({ expenses, onEditSelect, onDeleteExpense, o
                       <span className="text-xs font-black text-black block">PKR {item.amount.toLocaleString()}</span>
                       <span className="text-[9px] font-bold text-zinc-400 block font-mono uppercase tracking-wide">{item.category}</span>
                     </div>
-                    <div className="flex items-center space-x-1 pl-2 border-l border-zinc-100">
-                      <button onClick={() => onEditSelect(item)} className="p-1 text-zinc-400 hover:text-black transition cursor-pointer">
+                    
+                    {/* IMPROVED: Hidden by default (opacity-0), reveals instantly on row wrap container hover */}
+                    <div className="flex items-center space-x-1 pl-2 border-l border-zinc-100 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                      <button 
+                        onClick={() => onEditSelect(item)} 
+                        className="p-1 text-zinc-400 hover:text-black transition cursor-pointer hover:bg-zinc-100 rounded"
+                      >
                         <Edit2 className="w-3 h-3" />
                       </button>
-                      <button onClick={() => onDeleteExpense(item.id)} className="p-1 text-zinc-400 hover:text-red-500 transition cursor-pointer">
+                      <button 
+                        onClick={() => onDeleteExpense(item.id)} 
+                        className="p-1 text-zinc-400 hover:text-red-500 transition cursor-pointer hover:bg-rose-50 rounded"
+                      >
                         <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
