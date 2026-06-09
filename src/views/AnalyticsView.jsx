@@ -3,8 +3,6 @@ import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContai
 
 /**
  * AnalyticsView Component
- * Renders statistical tracking graphs mapping macro-level expenditure over time 
- * alongside itemized categorization breakdowns.
  */
 export default function AnalyticsView({ expenses }) {
   const aggregateMetrics = useMemo(() => {
@@ -32,7 +30,7 @@ export default function AnalyticsView({ expenses }) {
   return (
     <div className="space-y-6 w-full">
       
-      {/* Structural Timeline Visualization Mapping Area */}
+      {/* Spending Trend */}
       <div className="bg-white border border-zinc-200 rounded-[24px] p-6 shadow-xs w-full">
         <div className="mb-4">
           <h3 className="text-xs font-black uppercase tracking-wider text-black">Spending Trend</h3>
@@ -62,8 +60,8 @@ export default function AnalyticsView({ expenses }) {
         </div>
       </div>
 
-      {/* Analytical categorization metrics distribution grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+        {/* Category Breakdown */}
         <div className="bg-white border border-zinc-200 rounded-[24px] p-6 shadow-xs w-full">
           <div className="mb-4">
             <h3 className="text-xs font-black uppercase tracking-wider text-black">Category Breakdown</h3>
@@ -80,7 +78,6 @@ export default function AnalyticsView({ expenses }) {
                   <XAxis dataKey="Category" tick={{ fill: "#71717a", fontSize: 10, fontWeight: 600 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: "#71717a", fontSize: 9 }} axisLine={false} tickLine={false} />
                   <Tooltip contentStyle={{ backgroundColor: "#09090b", color: "#fff", border: "none", borderRadius: "12px", fontSize: "11px" }} />
-                  {/* Changed fill color from #09090b to the #ef4444 red accent color */}
                   <Bar dataKey="Total" fill="#ef4444" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -88,28 +85,28 @@ export default function AnalyticsView({ expenses }) {
           </div>
         </div>
 
-        <div className="bg-white border border-zinc-200 rounded-[24px] p-6 shadow-xs space-y-4 w-full">
+        {/* UPDATED: Top Categories Card - Solid Red */}
+        <div className="bg-[#E53E3E] border border-red-400 rounded-[24px] p-6 shadow-lg space-y-4 w-full">
           <div>
-            <h3 className="text-xs font-black uppercase tracking-wider text-black">Top Categories</h3>
-            <p className="text-[9px] font-bold text-zinc-400 font-mono">Primary account distribution vectors</p>
+            <h3 className="text-xs font-black uppercase tracking-wider text-white">Top Categories</h3>
+            <p className="text-[9px] font-bold text-red-100 font-mono">Primary account distribution vectors</p>
           </div>
           <div className="space-y-3 pt-1 w-full">
             {aggregateMetrics.categoryBreakdown.slice(0, 3).map((item, idx) => (
-              <div key={item.Category} className="flex justify-between items-center p-3 bg-zinc-50 rounded-xl border border-zinc-100 w-full">
+              <div key={item.Category} className="flex justify-between items-center p-3 bg-white/10 rounded-xl border border-white/10 w-full">
                 <div className="flex items-center space-x-3">
-                  <span className="text-xs font-mono font-black text-zinc-400">0{idx + 1}</span>
-                  <span className="text-xs font-bold text-black uppercase tracking-wide">{item.Category}</span>
+                  <span className="text-xs font-mono font-black text-red-100">0{idx + 1}</span>
+                  <span className="text-xs font-bold text-white uppercase tracking-wide">{item.Category}</span>
                 </div>
-                <span className="text-xs font-black text-black font-mono">PKR {item.Total.toLocaleString()}</span>
+                <span className="text-xs font-black text-white font-mono">PKR {item.Total.toLocaleString()}</span>
               </div>
             ))}
             {aggregateMetrics.categoryBreakdown.length === 0 && (
-              <p className="text-center py-10 text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Ledger stack empty</p>
+              <p className="text-center py-10 text-[10px] font-bold text-red-100 uppercase tracking-wider">Ledger stack empty</p>
             )}
           </div>
         </div>
       </div>
-
     </div>
   );
 }

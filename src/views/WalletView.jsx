@@ -3,8 +3,6 @@ import { CreditCard, ArrowDownRight, Calendar } from "lucide-react";
 
 /**
  * WalletView Component
- * Renders user account balances using a premium credit card UI view layer,
- * maps cumulative outflows, and aggregates a clean history statement grid.
  */
 export default function WalletView({ expenses }) {
   const totalSpent = useMemo(() => expenses.reduce((sum, item) => sum + item.amount, 0), [expenses]);
@@ -21,9 +19,8 @@ export default function WalletView({ expenses }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
       
-      {/* Premium Horizontal Card Container Workspace */}
       <div className="lg:col-span-5 space-y-4 w-full">
-        {/* Redesigned card: Flat layout replaced with dark-to-red metallic gradient matrix overlay */}
+        {/* Premium Credit Card */}
         <div className="bg-gradient-to-br from-zinc-950 via-neutral-900 to-red-950/40 border border-zinc-850 text-white p-6 rounded-[24px] shadow-xl relative w-full aspect-[1.586/1] flex flex-col justify-between overflow-hidden group">
           <div className="absolute right-[-20px] top-[-20px] w-40 h-40 bg-red-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-red-500/20 transition-all duration-500" />
           
@@ -53,13 +50,13 @@ export default function WalletView({ expenses }) {
           </div>
         </div>
 
-        {/* Total Outflows Metric Tracker Card */}
-        <div className="bg-white border border-zinc-200 rounded-[24px] p-5 shadow-xs flex justify-between items-center w-full">
+        {/* UPDATED: Total Outflows Metric Tracker Card (Solid Red) */}
+        <div className="bg-[#E53E3E] rounded-[24px] p-5 shadow-lg flex justify-between items-center w-full">
           <div>
-            <span className="text-[9px] font-black uppercase tracking-wider text-zinc-400 block font-mono">Total Capital Outflows</span>
-            <span className="text-base font-black text-black block mt-0.5">PKR {totalSpent.toLocaleString()}</span>
+            <span className="text-[9px] font-black uppercase tracking-wider text-red-100 block font-mono">Total Capital Outflows</span>
+            <span className="text-base font-black text-white block mt-0.5">PKR {totalSpent.toLocaleString()}</span>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-500">
+          <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-white">
             <ArrowDownRight className="w-4 h-4" />
           </div>
         </div>
@@ -98,7 +95,6 @@ export default function WalletView({ expenses }) {
           )}
         </div>
       </div>
-
     </div>
   );
 }
