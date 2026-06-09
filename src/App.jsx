@@ -15,7 +15,8 @@ import AnalyticsView from "./views/AnalyticsView";
 import SettingsView from "./views/SettingsView";
 import NotificationDropdown from "./components/NotificationDropdown";
 import NotebookPageBackground from "./components/NotebookPageBackground";
-import ExpenseFormModal from "./components/ExpenseFormModal"; // Form modal link checked
+// 🛠️ FIX 1: Changed import path to match your actual filename
+import ExpenseForm from "./components/ExpenseForm"; 
 
 function App() {
   const [activeView, setActiveView] = useState("dashboard");
@@ -24,7 +25,7 @@ function App() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [hoveredIcon, setHoveredIcon] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(""); // Dynamic Real-time Search State 
+  const [searchQuery, setSearchQuery] = useState(""); 
 
   const [budgets, setBudgets] = useLocalStorage("budget-limits", {
     Food: 15000,
@@ -33,17 +34,16 @@ function App() {
     Transport: 8000
   });
 
-  // --- UX FEATURE: Keyboard Shortcut Framework --- [cite: 112, 114]
+  // --- UX FEATURE: Keyboard Shortcut Framework ---
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Input processing scenarios text handling skip
       if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA") {
         return;
       }
       if (e.key.toLowerCase() === "n") {
         e.preventDefault();
         setEditingExpense(null);
-        setIsFormOpen(true); // Open modal form pipeline [cite: 114]
+        setIsFormOpen(true); 
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -194,28 +194,26 @@ function App() {
               </p>
             </div>
 
-            {/* HEADER CONTROLS AREA: Search + Notification + CTA layout mapping */}
+            {/* HEADER CONTROLS AREA: Search + Notification + CTA */}
             <div className="flex items-center space-x-3 relative flex-1 sm:justify-end max-w-xl w-full">
               
-              {/* Active Quick Search bar embedded in Header */}
               {activeView === "dashboard" && (
                 <div className="relative flex items-center flex-1 max-w-xs transition-all duration-300">
                   <Search className="w-3.5 h-3.5 absolute left-3 text-zinc-400 pointer-events-none" />
                   <input 
                     type="text" 
                     value={searchQuery}
-                    [cite_start]onChange={(e) => setSearchQuery(e.target.value)} // Continuous Search state sync 
+                    onChange={(e) => setSearchQuery(e.target.value)} 
                     placeholder="Search transactions..."
                     className="w-full bg-white border border-zinc-200 rounded-xl pl-9 pr-4 py-2 text-xs font-medium focus:outline-none focus:border-black shadow-sm transition"
                   />
                 </div>
               )}
 
-              {/* LOG EXPENSE CTA BUTTON FIXED */}
               <button 
                 onClick={() => { 
-                  setEditingExpense(null); // Clear previous parameters
-                  setIsFormOpen(true);     // Trigger visibility layer to true
+                  setEditingExpense(null); 
+                  setIsFormOpen(true);     
                 }}
                 className="bg-black hover:bg-zinc-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-sm transition cursor-pointer flex-shrink-0"
               >
@@ -253,7 +251,7 @@ function App() {
                 totalBalanceOut={totalBalanceOut}
                 monthlySpend={monthlySpend}
                 activeEntries={activeEntries}
-                [cite_start]searchQuery={searchQuery} // Passed down to filter transactions [cite: 60]
+                searchQuery={searchQuery} 
                 onEditSelect={(expense) => {
                   setEditingExpense(expense);
                   setIsFormOpen(true);
@@ -272,9 +270,10 @@ function App() {
 
       </div>
 
-      {/* --- FORM MODAL OVERLAY PORTAL ACTION --- */}
+      {/* --- FORM MODAL OVERLAY --- */}
       {isFormOpen && (
-        <ExpenseFormModal 
+        // 🛠️ FIX 2: Swapped out <ExpenseFormModal /> for <ExpenseForm /> 
+        <ExpenseForm 
           isOpen={isFormOpen}
           onClose={() => setIsFormOpen(false)}
           onSave={editingExpense ? handleUpdateExpense : handleAddExpense}
