@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Wallet, Calendar, ListTodo, Edit2, Check, X } from "lucide-react";
 import ExpenseList from "../components/ExpenseList";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 const brandRed = "#E53E3E";
 
@@ -19,6 +21,12 @@ export default function DashboardView({
 }) {
   const [editingCategory, setEditingCategory] = useState(null);
   const [tempLimit, setTempLimit] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const formatCurrency = (value) => {
     const numericValue = typeof value === "number" ? value : parseFloat(value) || 0;
@@ -107,18 +115,17 @@ export default function DashboardView({
         <div className="bg-white border border-zinc-200 rounded-2xl p-5 flex items-center justify-between">
           <div className="space-y-1">
             <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Total Balance Out</p>
-            <h3 className="text-xl font-black text-black tracking-tight">{formatCurrency(totalBalanceOut)}</h3>
+            {isLoading ? <Skeleton width={100} height={20} /> : <h3 className="text-xl font-black text-black tracking-tight">{formatCurrency(totalBalanceOut)}</h3>}
           </div>
           <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-100 text-zinc-900">
             <Wallet className="w-5 h-5" />
           </div>
         </div>
 
-        {/* FULL RED BACKGROUND CARD */}
         <div style={{ backgroundColor: brandRed }} className="rounded-2xl p-5 flex items-center justify-between shadow-xs">
           <div className="space-y-1">
             <p className="text-[10px] font-bold uppercase tracking-wider text-white">Monthly Spending</p>
-            <h3 className="text-xl font-black text-white tracking-tight">{formatCurrency(monthlySpend)}</h3>
+            {isLoading ? <Skeleton width={100} height={20} baseColor="#e53e3e" highlightColor="#f56565" /> : <h3 className="text-xl font-black text-white tracking-tight">{formatCurrency(monthlySpend)}</h3>}
           </div>
           <div style={{ color: brandRed }} className="p-3 bg-white rounded-xl shadow-xs">
             <Calendar className="w-5 h-5" />
@@ -128,7 +135,7 @@ export default function DashboardView({
         <div className="bg-white border border-zinc-200 rounded-2xl p-5 flex items-center justify-between">
           <div className="space-y-1">
             <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Active Postings</p>
-            <h3 className="text-xl font-black text-black tracking-tight">{activeEntries} Entries</h3>
+            {isLoading ? <Skeleton width={80} height={20} /> : <h3 className="text-xl font-black text-black tracking-tight">{activeEntries} Entries</h3>}
           </div>
           <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-100 text-zinc-900">
             <ListTodo className="w-5 h-5" />
@@ -138,7 +145,14 @@ export default function DashboardView({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start w-full">
         <div className="lg:col-span-2 space-y-6 w-full">
-          <ExpenseList expenses={expenses} searchQuery={searchQuery} onEditSelect={onEditSelect} onDeleteExpense={onDeleteExpense} onTriggerOpenForm={onTriggerOpenForm} />
+          <ExpenseList 
+            expenses={expenses} 
+            searchQuery={searchQuery} 
+            onEditSelect={onEditSelect} 
+            onDeleteExpense={onDeleteExpense} 
+            onTriggerOpenForm={onTriggerOpenForm} 
+            loading={isLoading}
+          />
         </div>
 
         <div className="space-y-6 w-full">
@@ -158,12 +172,7 @@ export default function DashboardView({
               <button onClick={handleExportCSV} className="p-2.5 bg-gray-950 hover:bg-black font-bold text-[10px] rounded-xl transition cursor-pointer text-center text-white active:scale-[0.98]">
                 Export CSV
               </button>
-              
-              {/* FULL RED BACKGROUND BUTTON */}
-              <button 
-                onClick={onClearData} 
-                className="p-2.5 bg-[#E53E3E] hover:bg-red-700 font-bold text-[10px] rounded-xl transition cursor-pointer text-center text-white active:scale-[0.98]"
-              >
+              <button onClick={onClearData} className="p-2.5 bg-[#E53E3E] hover:bg-red-700 font-bold text-[10px] rounded-xl transition cursor-pointer text-center text-white active:scale-[0.98]">
                 Clear All
               </button>
             </div>

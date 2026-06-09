@@ -1,17 +1,19 @@
 import React, { useState, useMemo } from "react";
 import { ArrowUpDown, Edit3, Trash2 } from "lucide-react";
+import Skeleton from "react-loading-skeleton"; // Import skeleton
+import "react-loading-skeleton/dist/skeleton.css"; // Import styles
 
 export default function ExpenseList({ 
   expenses = [], 
   searchQuery = "", 
   onEditSelect, 
   onDeleteExpense, 
-  onTriggerOpenForm 
+  onTriggerOpenForm,
+  loading = false // New prop added
 }) {
   const [activeCategory, setActiveCategory] = useState("all");
-  const [sortDirection, setSortDirection] = useState("desc"); // desc = newest first, asc = oldest first
+  const [sortDirection, setSortDirection] = useState("desc");
 
-  // Dynamic calculation for Tab badges count
   const categoryCounts = useMemo(() => {
     const counts = { all: expenses.length, food: 0, utilities: 0, entertainment: 0, transport: 0 };
     expenses.forEach((item) => {
@@ -23,16 +25,13 @@ export default function ExpenseList({
     return counts;
   }, [expenses]);
 
-  // Real-time filter pipeline matching Category Tabs AND Top-Header Quick Search Input
   const processedExpenses = useMemo(() => {
     let dataset = [...expenses];
     
-    // 1. Filter by active category tab
     if (activeCategory.toLowerCase() !== "all") {
       dataset = dataset.filter((i) => i.category?.toLowerCase() === activeCategory.toLowerCase());
     }
     
-    // 2. Filter by search query match (Look into Title or Category labels)
     if (searchQuery.trim() !== "") {
       const query = searchQuery.toLowerCase();
       dataset = dataset.filter(
@@ -40,7 +39,6 @@ export default function ExpenseList({
       );
     }
 
-    // 3. Apply sorting logic based on timestamp values
     return dataset.sort((a, b) => {
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
@@ -65,7 +63,6 @@ export default function ExpenseList({
   return (
     <div className="bg-white border border-zinc-200 rounded-[32px] p-6 shadow-xs space-y-6 w-full">
       
-      {/* List Header & Interactive Filtering Controllers */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-zinc-100">
         <div>
           <div className="flex items-center gap-2">
@@ -81,7 +78,6 @@ export default function ExpenseList({
           <p className="text-[10px] font-medium text-zinc-400 mt-0.5">Your recent bookkeeping ledger entries</p>
         </div>
 
-        {/* Dynamic Navigation Filter Tabs */}
         <div className="flex flex-wrap gap-1 bg-zinc-50 p-1 rounded-xl border border-zinc-200">
           {["all", "food", "utilities", "entertainment", "transport"].map((cat) => (
             <button
@@ -102,27 +98,33 @@ export default function ExpenseList({
         </div>
       </div>
 
-      {/* Primary Rendering Row Segment */}
       <div className="space-y-2 min-h-[220px]">
-        {processedExpenses.length === 0 ? (
-          /* High Priority Issue #2: Empty State Fallback Module */
-          <div className="flex flex-col items-center justify-center py-12 px-4 text-center border-2 border-dashed border-zinc-100 rounded-2xl min-h-[220px]">
-            <div className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center mb-3 text-zinc-400 border border-zinc-100">
-              📁
+        {loading ? (
+          // Skeleton Loader State
+          [...Array(4)].map((_, i) => (
+            <div key={i} className="flex items-center justify-between p-3.5 bg-white border border-zinc-100 rounded-2xl">
+              <div className="flex items-center space-x-3.5 w-full">
+                <Skeleton circle width={8} height={8} />
+                <div className="flex-1">
+                  <Skeleton width="60%" height={12} />
+                  <Skeleton width="30%" height={10} className="mt-1" />
+                </div>
+              </div>
+              <div className="text-right">
+                <Skeleton width={50} height={12} />
+              </div>
             </div>
+          ))
+        ) : processedExpenses.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 px-4 text-center border-2 border-dashed border-zinc-100 rounded-2xl min-h-[220px]">
+            <div className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center mb-3 text-zinc-400 border border-zinc-100">📁</div>
             <h4 className="text-xs font-bold text-neutral-900">No transactions recorded</h4>
-            <p className="text-[10px] text-zinc-400 max-w-[240px] mt-1 font-medium">
-              We couldn't find any data index parameters matching your filter or search requirements.
-            </p>
-            <button 
-              onClick={onTriggerOpenForm}
-              className="mt-4 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-900 text-[10px] font-bold px-3 py-1.5 rounded-lg transition cursor-pointer"
-            >
+            <p className="text-[10px] text-zinc-400 max-w-[240px] mt-1 font-medium">We couldn't find any data matching your requirements.</p>
+            <button onClick={onTriggerOpenForm} className="mt-4 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-900 text-[10px] font-bold px-3 py-1.5 rounded-lg transition cursor-pointer">
               Add Ledger Item
             </button>
           </div>
         ) : (
-          /* Iterating Filtered Transactions */
           processedExpenses.map((expense) => (
             <div 
               key={expense.id} 
@@ -131,9 +133,7 @@ export default function ExpenseList({
               <div className="flex items-center space-x-3.5 min-w-0">
                 <div className={`w-2 h-2 rounded-full flex-shrink-0 ${getCategoryColor(expense.category)}`} />
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-neutral-900 tracking-tight truncate max-w-[180px] sm:max-w-xs">
-                    {expense.title}
-                  </p>
+                  <p className="text-xs font-bold text-neutral-900 tracking-tight truncate max-w-[180px] sm:max-w-xs">{expense.title}</p>
                   <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider font-mono mt-0.5">
                     {new Date(expense.date).toLocaleDateString("en-US", { day: 'numeric', month: 'short', year: 'numeric' })}
                   </p>
@@ -142,28 +142,15 @@ export default function ExpenseList({
 
               <div className="flex items-center space-x-3 flex-shrink-0">
                 <div className="text-right">
-                  <p className="text-xs font-black text-black tracking-tight font-mono">
-                    {formatCurrency(expense.amount)}
-                  </p>
-                  <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400 mt-0.5">
-                    {expense.category || "General"}
-                  </p>
+                  <p className="text-xs font-black text-black tracking-tight font-mono">{formatCurrency(expense.amount)}</p>
+                  <p className="text-[8px] font-black uppercase tracking-widest text-zinc-400 mt-0.5">{expense.category || "General"}</p>
                 </div>
 
-                {/* Hover Quick Row Actions Panel */}
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center space-x-1 border-l pl-2 border-zinc-100">
-                  <button 
-                    onClick={() => onEditSelect(expense)}
-                    className="p-1 hover:bg-zinc-100 text-zinc-500 hover:text-black rounded transition cursor-pointer"
-                    title="Edit Record"
-                  >
+                  <button onClick={() => onEditSelect(expense)} className="p-1 hover:bg-zinc-100 text-zinc-500 hover:text-black rounded transition cursor-pointer" title="Edit Record">
                     <Edit3 className="w-3.5 h-3.5" />
                   </button>
-                  <button 
-                    onClick={() => onDeleteExpense(expense.id)}
-                    className="p-1 hover:bg-rose-50 text-zinc-400 hover:text-red-600 rounded transition cursor-pointer"
-                    title="Delete Record"
-                  >
+                  <button onClick={() => onDeleteExpense(expense.id)} className="p-1 hover:bg-rose-50 text-zinc-400 hover:text-red-600 rounded transition cursor-pointer" title="Delete Record">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -172,7 +159,6 @@ export default function ExpenseList({
           ))
         )}
       </div>
-
     </div>
   );
 }

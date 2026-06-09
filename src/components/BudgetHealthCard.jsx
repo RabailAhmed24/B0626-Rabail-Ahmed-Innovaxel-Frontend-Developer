@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
+import Skeleton from "react-loading-skeleton"; // Import skeleton
+import "react-loading-skeleton/dist/skeleton.css"; // Import styles
 
-export default function BudgetHealthCard({ expenses, budgets }) {
+export default function BudgetHealthCard({ expenses, budgets, loading = false }) {
   // Aggregate expenses dynamically by category context
   const targetSpentSums = useMemo(() => {
     const sums = { Food: 0, Utilities: 0, Entertainment: 0, Transport: 0 };
@@ -44,32 +46,45 @@ export default function BudgetHealthCard({ expenses, budgets }) {
 
   return (
     <div className="space-y-4">
-      {budgetTracks.map((bar) => (
-        <div key={bar.categoryName} className="space-y-1.5">
-          <div className="flex items-center justify-between text-[11px] font-bold">
-            <span className="text-zinc-600">{bar.categoryName}</span>
-            <div className="flex items-center space-x-1 text-zinc-400 font-mono font-medium">
-              <span className="text-black font-bold">PKR {bar.currentSpent.toLocaleString()}</span>
-              <span>/</span>
-              <span>{bar.maxLimit.toLocaleString()}</span>
+      {loading ? (
+        // Skeleton view while loading
+        [...Array(3)].map((_, i) => (
+          <div key={i} className="space-y-1.5">
+            <div className="flex justify-between">
+              <Skeleton width={60} height={10} />
+              <Skeleton width={100} height={10} />
+            </div>
+            <Skeleton height={8} />
+          </div>
+        ))
+      ) : (
+        budgetTracks.map((bar) => (
+          <div key={bar.categoryName} className="space-y-1.5">
+            <div className="flex items-center justify-between text-[11px] font-bold">
+              <span className="text-zinc-600">{bar.categoryName}</span>
+              <div className="flex items-center space-x-1 text-zinc-400 font-mono font-medium">
+                <span className="text-black font-bold">PKR {bar.currentSpent.toLocaleString()}</span>
+                <span>/</span>
+                <span>{bar.maxLimit.toLocaleString()}</span>
+              </div>
+            </div>
+
+            {/* Bar track background frame container */}
+            <div className="w-full h-2 bg-zinc-100 rounded-full overflow-hidden relative">
+              <div
+                className={`h-full ${bar.color} transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1)`}
+                style={{ width: `${bar.ratio}%` }}
+              />
+            </div>
+
+            <div className="flex justify-end">
+              <span className={`text-[9px] font-black tracking-wider uppercase px-1.5 py-0.5 rounded-md ${bar.badge}`}>
+                {bar.ratio}% Traversed
+              </span>
             </div>
           </div>
-
-          {/* Bar track background frame container */}
-          <div className="w-full h-2 bg-zinc-100 rounded-full overflow-hidden relative">
-            <div
-              className={`h-full ${bar.color} transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1)`}
-              style={{ width: `${bar.ratio}%` }}
-            />
-          </div>
-
-          <div className="flex justify-end">
-            <span className={`text-[9px] font-black tracking-wider uppercase px-1.5 py-0.5 rounded-md ${bar.badge}`}>
-              {bar.ratio}% Traversed
-            </span>
-          </div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   );
 }
